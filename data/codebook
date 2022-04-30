@@ -1,0 +1,7 @@
+codebook:
+
+"country" is the name of the country the data in that row in referring to, either Germany, America or the UK. 
+"year" refers to the year the data is from. 
+'"women" refers to the percentage of women who were economically active through participation in the workforce in that year and country.
+
+The data was gathered from the website Our World in Data. My specific data can be found under the subcategory 'Poverty and economic development' and then 'Women's employment'. The data is shown on the first graph on this webpage. The webpage can be found by following the link: https://ourworldindata.org/female-labor-supply.

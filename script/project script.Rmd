@@ -1,0 +1,175 @@
+---
+title: "Female labour force participation rates over the Last 100 Years"
+author: 
+date: "04/04/2022"
+output: html_document
+---
+
+# PSY6422 Project Motivation
+I took a great deal of time to choose a dataset for my visualisation which was both meant a lot to me and would be able to be visualised in a pleasing way. This is why this current data was chosen, as women have struggled throughout history to be seen as equal to men in employment and within the economy. 
+
+## What will this data show?
+This data will visualise the percentage of the female population, that were economically active through participation in the workforce from the age of 15. Dates prior to 1960 include females of 14 years of age also. This data will include data from Germany, UK and USA from the 1920's up until 2016. 
+
+## Data Origins
+The data was take from the website [Our World in Data](https://ourworldindata.org/female-labor-supply) under the subcategory poverty and economic development. The reference for the original published data is as follows, Long, C. D. (1958) The labor force under changing income and employment. Princeton University Press. Heckman J. and Killingsworth M. (1986) Female Labor Supply: A Survey. in Handbook of Labor Economics, Volume I, Edited by O. Ashenfelter and R. Layard. OECD.Stat. 
+
+
+## Research questions
+1- When was employment among women the highest?
+
+2- What trends can be seen in the data?
+
+3- Which country has the lowest/highest employment rate of women?
+
+
+```{r setup, message=FALSE, warning=FALSE}
+#load the needed libraries for project
+library(here)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(plotly)
+```
+
+
+```{r dataimport, message=FALSE, warning=FALSE}
+#importing of the data
+df<- read_csv(here("data", "female data.csv"))
+#display the data
+head(df)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+#data preparation 
+df2 <- df[-c(1:396, 449:1307, 1347:1349),] #as the data was so large I decided to pick three countries and delete the other rows. 
+
+df2 = select (df2, "country", "year", "women") #deleted 'code' column as it was not needed.
+
+arrange(df2, desc(women)) #shows the first 10 rows, with the highest percentage of working women.
+arrange (df2,(women)) #shows the first 10 rows, with the lowest percentage of working women.
+```
+
+**Codebook**
+
+The column 'country' is the name of the country the data in that row in referring to, either Germany, America or the UK. The column 'year' refers to the year the data is from. Lastly, the column 'women' refers to the percentage of women who were economically active through participation in the workforce in that year and country.
+
+**Research question 3**
+
+Interestingly, this shows that America has both the lowest and highest employment rate of women. The late 1990's/ early 2000's in America was the highest rate of employment for women across the three countries. Similarly, the USA also had the lowest percentage of females in the work force from the years 1920-1950. This is then followed by the UK from 1921-1961 and Germany in 1946.
+
+**Attempt 1**
+```{r message=FALSE, warning=FALSE}
+#scatterplot
+ df2 %>% 
+ ggplot (aes(
+   x = year, #assigns the column "year" to the x axis
+   y = women, #assigns the column "women to the y axis
+   colour = country))+ #use country as colour as it will be easy to visualise on the graph.
+geom_point(size = 1, 
+             alpha = 0.5) + #alpha makes the graph easier to read as the points are slightly transparent
+geom_jitter(height = 0, 
+             width = .3)+ #makes each point easier to see as they overlap
+geom_smooth (formula = y ~ x, 
+            method = "loess", #loess was used instead of lm as it is more visually appealing.
+            se = F)+ #the standard error is not shown on the graph
+scale_color_brewer(
+            palette ="Set3")+ #this colour palette is more appealing than the default colours.
+theme_bw()+
+theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major.x = element_blank(),
+      plot.margin = margin (1,1,1,1, "mm"))+ #this changes the background lines to make the graph look cleaner and easier to read.
+labs( #assigns labels to the graph
+        title = "Female labour force particpation rates, 1920-2016", #assigns a title
+        subtitle = "Proportion of female population active in the workforce from age 15",
+        x = "Year", #name for x axis
+        y = "Percentage of women in the workforce", #name for y axis 
+        caption = "Prior to 1960 data includes females from age 14") 
+```
+
+
+This graph I was very happy with, however I wanted to push myself further as the building blocks for this graph was taught in class. Therefore I took to the internet to see what else I could do with this data.
+
+**Attempt 2**
+```{r message=FALSE, warning=FALSE}
+plot_ly(df2,
+        x = ~year, #assigns the column "year" to the x axis
+        y = ~women, #assigns the column "women" to the y axis
+        color = ~factor(country))%>% #this creates a more interactive graph using the package plotly
+add_lines(
+         alpha = 0.8)%>% #add lines to the graph using alpha, which makes the lines slightly transparent. 
+layout( #add labels to the graph
+    title = "Female labour force particpation rates, 1920-2016",
+    xaxis = list(
+    title = "Year", #label for x axis 
+    range = c(1920, 2020) #range for the x axis
+    ),
+    yaxis = list(
+    title = "Percentage of women in the workforce", #name for the y axis
+    range = c(20: 60)) #range the y axis will start and end with. 
+    )%>%
+ 
+layout(
+     xaxis = list(
+     rangeslider = list(type = "women")) #rangeslider makes the graph more interactive as it allows you to focus on specific time points. 
+)
+
+```
+
+I was very happy with how this graph turned out and I was proud that I was able to push my coding abilities. However, I still preferred the look of the first attempt. Therefore, I attempted to combined the two. 
+
+
+**Attempt 3**
+```{r message=FALSE, warning=FALSE}
+
+p <- ggplot(df2, 
+             aes(x = year, #assigns the column "year" to the x axis
+                 y = women, #assigns the column "women" to the y axis
+                 colour = country))+ #use country as colour as it will be easy to visualise on the graph.
+geom_line(#adds a line to the graph
+         size = 1, 
+         alpha = 0.8)+ #alpha makes the lines slightly transparent to make for easier reading.
+scale_color_brewer(
+                   palette ="RdYlBu")+ #this colour palette is more appealing than the default colours.
+theme_bw()+ #adds a black and white theme
+theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    plot.margin = margin (1,1,1,1, "mm"))+ #this changes the background lines to make the graph look cleaner and easier to read.
+  #assign graph labels
+labs (title = "Female labour force particpation rates, 1920-2016", #assigns a title
+        x = "Year", #name for x axis
+        y = "Percentage of women in the workforce")+ #name for y axis 
+theme(
+     title = element_text(face = "bold", color = "black"),
+     axis.title = element_text(face = "bold", color = "black"), #makes the title and axis titles bold so us able to stand out more
+  )
+      
+ggplotly(p) #uses the code above to plot a more interactive graph
+
+```
+
+*A scatterplot was picked to represent the data as it is the best way to represent two numeric and one categorical data categories.* 
+
+```{r, eval=FALSE}
+#saving the data
+ggsave((here("figures", "my figure.pdf"))) #saves the data into the folder called figures.
+
+```
+
+## Research questions 1 and 2 
+
+The mean percentage of women in the workforce in the years between 1920-2016 was `r mean (df$women)`.
+There is a general positive trends across all three countries, with growth starting at different points in time, and proceeded at different rates. Despite the overall positive trends Germany showed a dip at the beginning of World War 2 and growth in the USA slowed down considerably at the turn of the 21st century. Overall, the highest point of participation in the workforce in the USA was 1999, whereas in the UK and Germany it was 2016 (the most recent time point shown). 
+
+
+## Discussion
+
+This research aimed to address how women have contributed to the workforce in the past 100 years, as attitudes to women within society have changed participation in the workforce has increased. However, this chart also shows that change was not always positive. For example, the US growth in participation slowed down considerably at the beginning of the 21st century.
+
+One limitation to be considered is only three countries were included in the analysis, in order to improve visualisation. Additionally, data points are uneven as there is more data points for more recent years compared to the 1920's. Future research may want to investigate further by examining reasons behind these data trends, for example the impact of World War 2 or employment laws. Additionally, future research might consider a wider range of countries. This could be made easier by grouping counties into continents. Alternatively, the most recent year could be visualised for every country to look at trends today. 
+
+*The End*
